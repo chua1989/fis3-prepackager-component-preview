@@ -1,0 +1,19 @@
+{
+  "name": "fis3-prepackager-component-preview",
+  "version": "1.0.0",
+  "description": "So that components can preview",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chua1989/fis3-prepackager-component-preview.git"
+  },
+  "author": "chua",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chua1989/fis3-prepackager-component-preview/issues"
+  },
+  "homepage": "https://github.com/chua1989/fis3-prepackager-component-preview#readme"
+}
