@@ -1,6 +1,6 @@
 {
   "name": "fis3-prepackager-component-preview",
-  "version": "1.0.0",
+  "version": "1.1.1",
   "description": "So that components can preview",
   "main": "index.js",
   "scripts": {
@@ -10,10 +10,18 @@
     "type": "git",
     "url": "git+https://github.com/chua1989/fis3-prepackager-component-preview.git"
   },
-  "author": "chua",
+  "author": {
+    "name": "chua"
+  },
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/chua1989/fis3-prepackager-component-preview/issues"
   },
-  "homepage": "https://github.com/chua1989/fis3-prepackager-component-preview#readme"
+  "homepage": "https://github.com/chua1989/fis3-prepackager-component-preview#readme",
+  "readme": "# fis3-prepackager-component-preview\r\nfis3组件可视化插件\r\n",
+  "readmeFilename": "README.md",
+  "gitHead": "028008322046868239fce1c2654acefc76f906e8",
+  "_id": "fis3-prepackager-component-preview@1.1.1",
+  "_shasum": "d44d23419c7d87cf0c741d3cddcc1fb481ee99bc",
+  "_from": "fis3-prepackager-component-preview@latest"
 }
