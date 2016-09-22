@@ -23,8 +23,11 @@ wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己
 ## 注意：
 
 组件文件中"@example"和"@example end"之间的字符串被认为是代码段：
+
 	1）不要出现不符合代码格式的字符
+
 	2)"html:"、"js:"分别为html代码段和js代码段开始的标志。其后的代码分别要严格按照html和js的格式要求书写
+
 
 
 匹配demo代码段的正则为/\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
