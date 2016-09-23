@@ -63,7 +63,7 @@ module.exports = function(ret, pack, settings, opt) {
 		var match,
 			moduleName = buf.match(regs.jsfile)[2];//["/xxx/ddd.js", "/ddd.js", "ddd"]
 		if(match = com[buf].getContent().match(regs.example)){
-			var comments = match[0].replace(regs.example,'$1$4')
+			var comments = match[0].replace(regs.example,'$1$5')
 				.replace(/((\r|\n)\s*)(\*)/g, '$1')
 				.replace(regs.enter, '\n');
 
