@@ -28,7 +28,7 @@ wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己
 
 	2)"html:"、"js:"分别为html代码段和js代码段开始的标志。其后的代码分别要严格按照html和js的格式要求书写
 
-组件文件样例举例：
+组件文件样例：
 
 ```js
 define('common/module/rightsideBar/rightsideBar', function(require, exports, module) {
