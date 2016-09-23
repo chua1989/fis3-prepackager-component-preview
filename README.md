@@ -28,6 +28,43 @@ wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己
 
 	2)"html:"、"js:"分别为html代码段和js代码段开始的标志。其后的代码分别要严格按照html和js的格式要求书写
 
+组件文件样例举例：
 
+```js
+define('common/module/rightsideBar/rightsideBar', function(require, exports, module) {
+/**
+ * @example
+    html:
+    <div class="js-rightsideBar"></div>
+
+    js:
+    var rightsideBar = require('/common/module/rightsideBar/rightsideBar.js');
+    new rightsideBar($('.js-rightsideBar'));
+
+    @example end
+
+ * @author chua
+ * @date 2016-5-9
+ * @description 首页右侧导航栏组件，依赖模版 rightsideBar.tpl，rightsideBar.scss;
+
+ * @实例化：rightsideBar = new rightsideBar(dom);
+ * @param dom {Dom} 为头部组件父级节点，将根据情况append模版，生成头部节点；
+ */
+
+/*
+ * @require './rightsideBar.scss';
+ */
+
+var tpl_rightsideBar = require('./rightsideBar.tpl');
+function rightsideBar(cont) {
+    this.cont = $(cont);
+    this.cont.empty().append(tpl_rightsideBar());//render html
+    this.cont.on('click', 'xxx', function() {//binding event
+       ...
+    });
+};
+return rightsideBar;
+}
+```
 
 匹配demo代码段的正则为/\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
