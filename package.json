@@ -1,6 +1,6 @@
 {
   "name": "fis3-prepackager-component-preview",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "So that components can preview",
   "main": "index.js",
   "scripts": {

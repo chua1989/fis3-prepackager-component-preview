@@ -93,3 +93,6 @@ return rightsideBar;
 ```
 
 匹配demo代码段的正则为/\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
+
+
+完整的demo查看[fis3_component_preview_demo](https://github.com/chua1989/fis3_component_preview_demo).
