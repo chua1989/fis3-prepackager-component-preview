@@ -45,12 +45,12 @@ module.exports = function(ret, pack, settings, opt) {
 	//fis.log.notice('settings.COMPath : ' + settings.COMPath);	
 
 	Object.keys(src).forEach(function(key){
-		if(RegExp(settings.COMPath).test(key) && /\.js$/.test(key)){
-			com[key] = src[key];
-		}
-
 		if(RegExp(settings.wrap).test(key)){
 			wrap = fis.file.wrap(src[key]);
+		}
+		
+		if(RegExp(settings.COMPath).test(key) && /\.js$/.test(key)){
+			com[key] = src[key];
 		}
 	});
 	if(!wrap){
@@ -85,9 +85,6 @@ module.exports = function(ret, pack, settings, opt) {
 
 	//新加的组件可视化页面
 	var content = wrap.getContent();
-	// fis.log.notice('settings.moduleListInstead:' + settings.moduleListInstead);
-	// fis.log.notice('innerLeft:' + innerLeft);
-	// fis.log.notice(RegExp(settings.moduleListInstead).test(content.toString()));
 
 	//最终写入
 	content = content.replace(settings.moduleListInstead, innerLeft)
@@ -95,7 +92,7 @@ module.exports = function(ret, pack, settings, opt) {
 		.replace(settings.moduleCommentsInstead, innerRightB)
 		.replace(settings.moduleJsInstead, innerJs);
 
-	    // 派送事件
+	// 派送事件
     var message = {
       file: wrap,
       content: content,
