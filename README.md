@@ -20,6 +20,31 @@ v_components.html为组件可视化生成的文件。最终在浏览器中打开
 
 wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己去配置
 
+wrap.html样例:(注意body内的字符串将会被模块数据替换，就是moduleXXXInstead对应的字段)
+```html 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>组件可视化</title>
+    <link rel="import" href="/common/html/meta.html?__inline">
+    <link rel="stylesheet" type="text/css" href="/common/css/common.scss" />
+    <link rel="stylesheet" type="text/css" href="v_components.css" />
+    <script type="text/javascript" src="/common/dep/mod.js" data-loader></script>
+    <script type="text/javascript" src="/common/dep/jquery.js" data-loader></script>
+    <script type="text/javascript" src="/common/js/common.js" data-loader></script>
+    <script type="text/javascript" src="v_components.js" data-loader></script>
+</head>
+<body>  
+<div class="left-side">instead of modules</div>
+<div class="right-side">
+    <div class="right-side-top">instead of view htmls</div>
+    <div class="right-side-bottom">instead of commnets</div>
+</div>
+<script type="text/javascript">instead of js</script>
+</body>
+</html>
+```
+
 ## 注意：
 
 组件文件中"@example"和"@example end"之间的字符串被认为是代码段：
