@@ -20,7 +20,7 @@ v_components.html为组件可视化生成的文件。最终在浏览器中打开
 
 wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己去配置
 
-wrap.html样例:(注意body内的字符串将会被模块数据替换，就是moduleXXXInstead对应的字段)
+wrap.html样例:(注意body内的字符串将会被组件可视化数据替换，对应就是moduleXXXInstead对应的字段)
 ```html 
 <!DOCTYPE html>
 <html>
