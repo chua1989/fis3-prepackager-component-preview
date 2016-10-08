@@ -54,7 +54,8 @@ module.exports = function(ret, pack, settings, opt) {
 		}
 	});
 	if(!wrap){
-		console.log("wrap file path is not correct! wrap:" + wrap);
+		console.log("wrap file path is not correct! wrap:" + wrap + ' wrappath:' + settings.wrap);
+		return;
 	}
 
 	var requires = [];
