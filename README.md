@@ -95,7 +95,7 @@ return rightsideBar;
 
 匹配demo代码段的正则为/\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
 
-规则：  
+## 规则：  
 1.组件可视化会将所有的组件分成四个部分来保存，这四个部分我们分别取名Names,Htmls,Commnets,Jss;  
 2.组件可视化插件会将每一个组件拆分为四个部分：模块名称节点、模块html代码节点、模块注释节点、js脚本代码段;这四个部分分别会累加到Names,Htmls,Commnets,Jss中  
 eg:有一个组件注释为下面这个代码段  
