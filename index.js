@@ -8,12 +8,77 @@ settings = {
 	moduleViewInstead: 'xx',//使用模块视图列表节点替换当前文本
 	moduleCommentsInstead: 'xxx',//使用模块注释列表节点替换当前文本
 	moduleJsInstead: 'xxx',//使用js脚本节点替换当前文本
+	moduleAttr: 'data-mod'//默认是data-mod;给每一个组件对应的节点添加上moduleAttr对应的属性，属性的值是就是模块的名称
 }
 demo代码匹配规则'example': /\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
-// ret.src 所有的源码，结构是 {'<subpath>': <File 对象>},包括所有的文件
-// ret.ids 所有源码列表，结构是 {'<id>': <File 对象>},只包含资源文件如css,js,tpl,json等，不包括html、图片等文件
-// ret.map 包含两个属性：res和pkg。如果是 spriter、postpackager 这时候已经能得到打包结果了，可以修改静态资源列表或者其他
-// ret.pkg
+
+规则：
+1.组件可视化会将所有的组件分成四个部分来保存，这四个部分我们分别取名Names,Htmls,Commnets,Jss;
+2.组件可视化插件会将每一个组件拆分为四个部分：模块名称节点、模块html代码节点、模块注释节点、js脚本代码段;这四个部分分别会累加到Names,Htmls,Commnets,Jss中
+eg:有一个组件注释为下面这个代码段
+	 * @author '陈桦'
+	 * @date '2017-3-22'
+	 * @description h5头部导航栏，依赖模版 header.tpl，header.scss,Ajax
+	 * @example
+	    html:
+	    <!-- 展示定期列表-->
+	    <div class="js-header"></div>
+	    
+	    js:
+	    var Header = require('/common/module/header/header.js');
+	    new Header($('.js-header')).init();
+	   @example end
+	 * @return 无
+
+
+组件可视化将一个组件解析注释拆解组成的四个部分分别是
+a1.模块名称节点
+	<div data-mod="header">header</div>
+a2.模块html代码节点
+	<div data-mod="header">
+		<div class="js-header"></div>
+	</div>
+a3.模块注释节点
+	<div data-mod="header">
+		<div >样例：
+			<div>
+				html:
+			    <!-- 展示定期列表-->
+			    <div class="js-header"></div>
+			    
+			    js:
+			    var Header = require('/common/module/header/header.js');
+			    new Header($('.js-header')).init();
+			</div>
+		</div>
+		<div >其他：
+			<div>
+				@author '陈桦'
+	 			@date '2017-3-22'
+	 			@description h5头部导航栏，依赖模版 header.tpl，header.scss,Ajax
+				
+				@return 无
+ 			</div>
+ 		</div>
+ 	</div>
+a4.js脚本代码段
+	var Header = require('/common/module/header/header.js');
+	new Header($('.js-header')).init();
+
+注意其中包裹节点都有一个data-mod属性，并且值是组件名称。这个属性名称是moduleAttr定义的
+
+解析完所有的组件，四个部分分别是：
+Names = a1 + b1 + c1 + ...
+Htmls = a2 + b2 + c2 + ...
+Commnets = a3 + b3 + c3 + ...
+Jss = a4 + b4 + c4 + ...
+
+3.组件解析完成以后，Names会替换wrap指定的文件中moduleListInstead对应的字符串
+	Htmls会替换wrap指定的文件中moduleViewInstead对应的字符串
+	Commnets会替换wrap指定的文件中moduleCommentsInstead对应的字符串
+	Jss会替换wrap指定的文件中moduleJsInstead对应的字符串
+
+
 */
 var path = require('path');
 var regs = {
@@ -68,13 +133,14 @@ module.exports = function(ret, pack, settings, opt) {
 				.replace(/((\r|\n)\s*)(\*)/g, '$1')
 				.replace(regs.enter, '\n');
 
-			innerLeft += '<div data-mod="'+ moduleName +'">' + moduleName + '</div>';
-			innerRightT += '<div data-mod="'+ moduleName +'">' + match[3] + '</div>';
-			innerRightB += '<div data-mod="'+ moduleName +'">' 
+			settings.moduleAttr = settings.moduleAttr || 'data-mod';
+			innerLeft += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' + moduleName + '</div>';
+			innerRightT += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' + match[3] + '</div>';
+			innerRightB += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' 
 				+ '<div >样例：<div>' + transToHtml(match[2].replace(regs.enter, '\n')) +'</div></div>'
 				//去掉代码用例区域，去掉每一行之前的*符号
 				+ '<div >其他：<div>' + transToHtml(comments) + '</div></div></div>';
-			innerJs += match[4] + ";";
+			innerJs += '\ntry{'+ match[4] + '}catch(err){console.log("in ' + settings.moduleAttr + ' js:" + err)};';
 
 			//添加依赖
 			var modN = buf.replace(regs.modName, '$1');
