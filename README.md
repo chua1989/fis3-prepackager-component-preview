@@ -12,11 +12,12 @@ fis.match('::package', {
         moduleListInstead: 'instead of modules',//使用模块列表节点替换当前文本
         moduleViewInstead: 'instead of view htmls',//使用模块视图列表节点替换当前文本
         moduleCommentsInstead: 'instead of commnets',//使用模块注释列表节点替换当前文本
-        moduleJsInstead: 'instead of js'//使用js脚本节点替换当前文本
+        moduleJsInstead: 'instead of js',//使用js脚本节点替换当前文本
+	moduleAttr: 'data-mod'//默认是data-mod;给每一个组件对应的节点添加上moduleAttr对应的属性，属性的值是就是模块的名称
     })
 })
 ```
-v_components.html为组件可视化生成的文件。最终在浏览器中打开该文件即可看到组件化效果
+v_components.html为组件可视化生成的文件。最终在浏览器中打开该文件即可看到组件化效果 
 
 wrap.html是用来包裹组件可视化代码的。需要的js、css需要自己去配置
 
@@ -93,6 +94,93 @@ return rightsideBar;
 ```
 
 匹配demo代码段的正则为/\/\*\*([\s\S]*)@example[\s\S]*?html:([\s\S]*?)js:([\s\S]*?)@example end([\s|\S]*?)\*\//
+
+规则：  
+1.组件可视化会将所有的组件分成四个部分来保存，这四个部分我们分别取名Names,Htmls,Commnets,Jss;  
+2.组件可视化插件会将每一个组件拆分为四个部分：模块名称节点、模块html代码节点、模块注释节点、js脚本代码段;这四个部分分别会累加到Names,Htmls,Commnets,Jss中  
+eg:有一个组件注释为下面这个代码段  
+
+```
+* @author '陈桦'
+* @date '2017-3-22'
+* @description h5头部导航栏，依赖模版 header.tpl，header.scss,Ajax
+* @example
+    html:
+    <!-- 展示定期列表-->
+    <div class="js-header"></div>
+    
+    js:
+    var Header = require('/common/module/header/header.js');
+    new Header($('.js-header')).init();
+  @example end
+* @return 无
+```
+
+
+
+组件可视化将一个组件解析注释拆解组成的四个部分分别是  
+a1.模块名称节点  
+	
+```
+<div data-mod="header">header</div>
+```
+
+a2.模块html代码节点  
+
+```
+<div data-mod="header">  
+    <div class="js-header"></div>  
+</div>
+```
+
+a3.模块注释节点
+	
+```
+<div data-mod="header">
+    <div >样例：
+    	<div>
+    		html:
+    	    <!-- 展示定期列表-->
+    	    <div class="js-header"></div>
+    	    
+    	    js:
+    	    var Header = require('/common/module/header/header.js');
+    	    new Header($('.js-header')).init();
+    	</div>
+    </div>
+    <div >其他：
+    	<div>
+    		@author '陈桦'
+     		@date '2017-3-22'
+     		@description h5头部导航栏，依赖模版 header.tpl，header.scss,Ajax
+    		
+    		@return 无
+        </div>
+    </div>
+</div>
+```
+
+a4.js脚本代码段  
+
+```
+var Header = require('/common/module/header/header.js');
+new Header($('.js-header')).init();
+```
+
+
+注意其中包裹节点都有一个data-mod属性，并且值是组件名称。这个属性名称是moduleAttr定义的
+
+解析完所有的组件，四个部分分别是：  
+Names = a1 + b1 + c1 + ...  
+Htmls = a2 + b2 + c2 + ...  
+Commnets = a3 + b3 + c3 + ...  
+Jss = a4 + b4 + c4 + ...  
+
+3.组件解析完成以后，  
+Names会替换wrap指定的文件中moduleListInstead对应的字符串  
+Htmls会替换wrap指定的文件中moduleViewInstead对应的字符串  
+Commnets会替换wrap指定的文件中moduleCommentsInstead对应的字符串  
+Jss会替换wrap指定的文件中moduleJsInstead对应的字符串  
 
 
 完整的demo查看[fis3_component_preview_demo](https://github.com/chua1989/fis3_component_preview_demo).
