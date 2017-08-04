@@ -81,95 +81,114 @@ Jss = a4 + b4 + c4 + ...
 
 */
 var path = require('path');
+var fs = require('fs');
 var regs = {
-		//懒惰匹配到第一个*/
-		'example': /\/\*\*([\s\S]*)@example[\s\S]*?(html:([\s\S]*?)js:([\s\S]*?))@example end([\s|\S]*?)\*\//,//懒惰匹配第一个*/
-		'jsfile': /\S*(\/(\S+)*?\.js)$/,
-		'modName': /\/(\S+\.js)/
-	},
-	innerLeft = '',
-	innerRightT = '',
-	innerRightB = '',
-	innerJs = '';
-	
+        //懒惰匹配到第一个*/
+        'example': /\/\*\*([\s\S]*)@example[\s\S]*?(html:([\s\S]*?)js:([\s\S]*?))@example end([\s|\S]*?)\*\//, //懒惰匹配第一个*/
+        'jsfile': /\S*(\/(\S+)*?\.js)$/,
+        'modName': /\/(\S+\.js)/
+    },
+    innerItems = {},
+    wrap;
+
 //将str字符串转换成HTML格式
-function transToHtml(str){
-	var tran = [/&/g, />/g, /</g, /\n/g, / /g],//先要处理'&'才能处理其他标签，否则其他标签生成的‘&’会被处理
-		to = ['&amp;', '&gt;', '&lt;', '<br>', '&nbsp;'];
-	for(var i = 0; i < tran.length; i++){
-		str = str.replace(tran[i], to[i]);
-	}
-	return str;
+function transToHtml(str) {
+    var tran = [/&/g, />/g, /</g, /\n/g, / /g], //先要处理'&'才能处理其他标签，否则其他标签生成的‘&’会被处理
+        to = ['&amp;', '&gt;', '&lt;', '<br>', '&nbsp;'];
+    for (var i = 0; i < tran.length; i++) {
+        str = str.replace(tran[i], to[i]);
+    }
+    return str;
 }
+
 module.exports = function(ret, pack, settings, opt) {
-	var src = ret.src,
-		com = {},
-		root = fis.project.getProjectPath(),
-		wrap,//包裹文件
-		newFile = fis.file.wrap(path.join(root, settings.url));//新文件
-	//fis.log.notice('settings.COMPath : ' + settings.COMPath);	
+    var src = ret.src, // 项目所有文件，key:文件路径，value:文件file对象
+        com = {}, // 组件集合目录中所有的js文件,key：文件路径，value:文件file对象
+        root = fis.project.getProjectPath(), // 项目根目录
+        newFile = fis.file.wrap(path.join(root, settings.url)), //新文件
+        innerLeft = '',
+        innerRightTop = '',
+        innerRightBottom = '',
+        innerJs = '';
 
-	Object.keys(src).forEach(function(key){
-		if(RegExp(settings.wrap).test(key)){
-			wrap = fis.file.wrap(src[key]);
-		}
-		
-		if(RegExp(settings.COMPath).test(key) && /\.js$/.test(key)){
-			com[key] = src[key];
-		}
-	});
-	if(!wrap){
-		console.log("wrap file path is not correct! wrap:" + wrap + ' wrappath:' + settings.wrap);
-		return;
-	}
+    // console.log('settings.wrap：' + settings.wrap, 'Object.keys(src)长度:' + Object.keys(src).length)
+    Object.keys(src).forEach(function(key) {
+        if (RegExp(settings.wrap).test(key)) {
+            wrap = fis.file.wrap(src[key]);
+        }
 
-	var requires = [];
-	//遍历所有模块文件
-	for(var buf in com){
-		var match,
-			moduleName = buf.match(regs.jsfile)[2];//["/xxx/ddd.js", "/ddd.js", "ddd"]
-		if(match = com[buf].getContent().match(regs.example)){
-			var comments = match[0].replace(regs.example,'$1$5')
-				.replace(/((\r|\n)\s*)(\*)/g, '$1')
-				.replace(regs.enter, '\n');
+        if (RegExp(settings.COMPath).test(key) && /\.js$/.test(key)) {
+            com[key] = src[key];
+            // console.log('重新打包的文件路径', com[key]['origin'], '\n');
+        }
+    });
 
-			settings.moduleAttr = settings.moduleAttr || 'data-mod';
-			innerLeft += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' + moduleName + '</div>';
-			innerRightT += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' + match[3] + '</div>';
-			innerRightB += '<div '+ settings.moduleAttr +'="'+ moduleName +'">' 
-				+ '<div >样例：<div>' + transToHtml(match[2].replace(regs.enter, '\n')) +'</div></div>'
-				//去掉代码用例区域，去掉每一行之前的*符号
-				+ '<div >其他：<div>' + transToHtml(comments) + '</div></div></div>';
-			innerJs += '\ntry{'+ match[4] + '}catch(err){console.log("in ' + settings.moduleAttr + ' js:" + err)};';
+    if (!wrap) {
+        console.log("wrap file path is not correct! wrap:" + wrap + ' wrappath:' + settings.wrap);
+        return;
+    }
 
-			//添加依赖
-			var modN = buf.replace(regs.modName, '$1');
-			//fis.log.notice('com[' + buf + '].requires:' + com[buf].requires)
-			requires = requires.concat(modN);
-			requires = requires.concat(com[buf].requires);
-		}
-	}
+    var requires = [];
+    //遍历所有模块文件
+    for (var buf in com) {
+        var match,
+            moduleName = buf.match(regs.jsfile)[2]; //["/xxx/ddd.js", "/ddd.js", "ddd"]
 
-	//新加的组件可视化页面
-	var content = wrap.getContent();
+        if (match = com[buf].getContent().match(regs.example)) { //  提取模块中所有js文件中的符合提前约定的注释
+            var comments = match[0].replace(regs.example, '$1$5')
+                .replace(/((\r|\n)\s*)(\*)/g, '$1')
+                .replace(regs.enter, '\n');
 
-	//最终写入
-	content = content.replace(settings.moduleListInstead, innerLeft)
-		.replace(settings.moduleViewInstead, innerRightT)
-		.replace(settings.moduleCommentsInstead, innerRightB)
-		.replace(settings.moduleJsInstead, innerJs);
+            settings.moduleAttr = settings.moduleAttr || 'data-mod';
 
-	// 派送事件
+            var id = com[buf].id;
+            innerItems[id] = {
+            	left: '<div ' + settings.moduleAttr + '="' + moduleName + '">' + moduleName + '</div>',
+            	rightTop: '<div ' + settings.moduleAttr + '="' + moduleName + '">' + match[3] + '</div>',
+            	rightBottom:'<div ' + settings.moduleAttr + '="' + moduleName + '">' +
+                '<div >样例：<div>' + transToHtml(match[2].replace(regs.enter, '\n')) + '</div></div>'
+                //去掉代码用例区域，去掉每一行之前的*符号
+                +
+                '<div >其他：<div>' + transToHtml(comments) + '</div></div></div>',
+                js:'\ntry{' + match[4] + '}catch(err){console.log("in ' + settings.moduleAttr + ' js:" + err)};'
+
+            };
+
+            //添加依赖
+            var modN = buf.replace(regs.modName, '$1');
+            requires = requires.concat(modN);
+            requires = requires.concat(com[buf].requires);
+        }
+    }
+
+    Object.keys(innerItems).forEach(function(key) {
+        innerLeft += innerItems[key]['left'];
+        innerRightTop += innerItems[key].rightTop;
+        innerRightBottom += innerItems[key].rightBottom;
+        innerJs += innerItems[key].js;
+    })
+
+    //新加的组件可视化页面
+    var content = wrap.getContent();
+    //最终写入
+    content = content.replace(settings.moduleListInstead, innerLeft)
+        .replace(settings.moduleViewInstead, innerRightTop)
+        .replace(settings.moduleCommentsInstead, innerRightBottom)
+        .replace(settings.moduleJsInstead, innerJs);
+
+    // 派送给打包事件
     var message = {
-      file: wrap,
-      content: content,
-      newFile: newFile
+        file: wrap,
+        content: content,
+        newFile: newFile
     };
+
     fis.emit('pack:file', message);
 
-	newFile.setContent(content);
-	newFile.requires = requires;
-	ret.src[newFile.subpath] = newFile;
-	fis.compile(newFile);
-}
+    newFile.setContent(content); // 继续进行后续的parser
+    newFile.requires = requires;
+    ret.src[newFile.subpath] = newFile;
 
+    fis.compile(newFile);
+
+}
