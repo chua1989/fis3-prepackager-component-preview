@@ -1,6 +1,6 @@
 {
   "name": "fis3-prepackager-component-preview",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "So that components can preview",
   "main": "index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   "readme": "# fis3-prepackager-component-preview\r\nfis3组件可视化插件\r\n",
   "readmeFilename": "README.md",
   "gitHead": "028008322046868239fce1c2654acefc76f906e8",
-  "_id": "fis3-prepackager-component-preview@1.1.7",
+  "_id": "fis3-prepackager-component-preview@1.1.8",
   "_shasum": "c6352dda6ea59d3946a875113f48080f3bb1eb6c",
   "_from": "fis3-prepackager-component-preview@latest"
 }
